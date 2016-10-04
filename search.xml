@@ -4,6 +4,16 @@
   
     
     <entry>
+      <title><![CDATA[有理数不完备性的证明]]></title>
+      <url>http://willxue.top/2016/10/04/Q-incomplete/</url>
+      <content type="html"><![CDATA[<p>Let $A={x|x^2<2, x\in="" q,="" x="">0},B={x|x^2&gt;2, x\in Q, x&gt;0}$, show that $A$ contains no largest element<br>and $B$ contains no smallest element.</2,></p>
+<p><strong>Proof:</strong></p>
+<p>$\forall x \in B, \epsilon = \frac{x^2-2}{x+2}&gt;0, \epsilon\in Q^+, y = x-\epsilon=\frac{2x+2}{x+2} \in Q^+, $<br>$y^2-2=\frac{2(x^2-2)}{(x+2)^2}&gt;0 \Rightarrow y\in B$ and $y&lt;x$.</p>
+<p><strong>Q.E.D</strong></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[grpc windows 编译手记]]></title>
       <url>http://willxue.top/2016/10/04/grpc-install/</url>
       <content type="html"><![CDATA[<hr>
