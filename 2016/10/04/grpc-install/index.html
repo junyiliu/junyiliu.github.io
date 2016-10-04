@@ -1,0 +1,793 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="grpc,cpp," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="因为不想去手动写太复杂的消息反射代码，放弃了protobuf+ZeroMQ的方案，直接使用grpc来完成rpc服务端和客户端。可能是因为开源时间并不长的缘故，网络上关于grpc的资料少之又少，Windows上的编译安装过程难之又难。折腾了好几次之后，总结出一套不再烦人的流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="grpc windows 编译手记">
+<meta property="og:url" content="http://willxue.top/2016/10/04/grpc-install/index.html">
+<meta property="og:site_name" content="墨色菡萏">
+<meta property="og:description" content="因为不想去手动写太复杂的消息反射代码，放弃了protobuf+ZeroMQ的方案，直接使用grpc来完成rpc服务端和客户端。可能是因为开源时间并不长的缘故，网络上关于grpc的资料少之又少，Windows上的编译安装过程难之又难。折腾了好几次之后，总结出一套不再烦人的流程。">
+<meta property="og:updated_time" content="2016-10-04T09:52:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="grpc windows 编译手记">
+<meta name="twitter:description" content="因为不想去手动写太复杂的消息反射代码，放弃了protobuf+ZeroMQ的方案，直接使用grpc来完成rpc服务端和客户端。可能是因为开源时间并不长的缘故，网络上关于grpc的资料少之又少，Windows上的编译安装过程难之又难。折腾了好几次之后，总结出一套不再烦人的流程。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://willxue.top/2016/10/04/grpc-install/"/>
+
+  <title> grpc windows 编译手记 | 墨色菡萏 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">墨色菡萏</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">默而成之，不言而信，存乎德行。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form" >
+  <input type="text" id="search-input">
+  <div id="search-result"><ul class="search-result-list"><li><a href="//www.baidu.com/s?wd=XXX%20site%3Ahttp://willxue.top" class="search-result">百度搜索 <i class="search-keyword">XXX</i></a></li><li><a href="//www.google.com/search?q=XXX%20site%3Ahttp://willxue.top" class="search-result">谷歌搜索 <i class="search-keyword">XXX</i></a></li><li><a href="#" class="popup-trigger search-result">本地搜索</a></li></ul>
+  </div>
+</form>
+  <div class="popup">
+  <input type="text" id="local-search-input">
+  <div id="local-search-result"></div>
+  <span class="popup-btn-close">close</span>
+  </div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                grpc windows 编译手记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-04T12:01:51+08:00" content="2016-10-04">
+              2016-10-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/技术文章/" itemprop="url" rel="index">
+                    <span itemprop="name">技术文章</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>因为不想去手动写太复杂的消息反射代码，放弃了<code>protobuf+ZeroMQ</code>的方案，直接使用<code>grpc</code>来完成<code>rpc</code>服务端和<br>客户端。可能是因为开源时间并不长的缘故，网络上关于<code>grpc</code>的资料少之又少，Windows上的编译安装过程难之又难。折腾了好几次之后，总结出一套不再烦人的流程。<br><a id="more"></a></p>
+<h1 id="使用工具"><a href="#使用工具" class="headerlink" title="使用工具"></a>使用工具</h1><hr>
+<ul>
+<li><code>git</code>: 获取源码，第三方依赖等</li>
+<li><code>cmake</code>:生成目标编译器项目</li>
+<li><code>VS2015</code>: 编译项目</li>
+</ul>
+<hr>
+<h1 id="编译grpc库"><a href="#编译grpc库" class="headerlink" title="编译grpc库"></a>编译<code>grpc</code>库</h1><p>首先创建文件夹<code>D:/cpplib/google</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">D:</div><div class="line">mkdir cpplib</div><div class="line">cd cpplib</div><div class="line">mkdir google</div><div class="line">cd google</div></pre></td></tr></table></figure></p>
+<p>下载github上的grpc项目<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/grpc/grpc.git</div></pre></td></tr></table></figure></p>
+<p>获取第三方依赖<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd grpc</div><div class="line">git submodule update --init</div></pre></td></tr></table></figure></p>
+<p>编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd vsproject</div><div class="line">build_vs2015.bat grpc.sln</div></pre></td></tr></table></figure></p>
+<p>这时编译会失败。用VS2015打开grpc.sln文件。这时因为ssl的问题，在项目中卸载即可。<code>boringssl-&gt;右键-&gt;移除</code>。然后build整个解决方案，完成后提示<code>成功 14 个，失败 2 个</code>。打开vsproject下的Debug目录，可以看到编译生成的库文件。文件中没有zlib,说明这个项目生成失败。grpc_dll项目生成的dll文件大小为0，应该也是失败的，这个暂时不用管，编译demo不用这个。直接编译z项目，提示以下错误:</p>
+<p><strong>error C4996: ‘write’: The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _write. See online help for details.</strong></p>
+<p>打开<code>zlib.h</code>在<code>#include &quot;zconf.h&quot;</code>后面添加<code>#pragma warning(disable:4996)</code>,添加后的文件为<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> ZLIB_H</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ZLIB_H</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"zconf.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">pragma</span> <span class="meta-keyword">warning</span>(disable:4996)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __cplusplus</span></div><div class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>然后再次编译，可以编译成功<code>z.lib</code>。</p>
+<p>至此，我们就可以得到<code>Bebug Win32</code>的库。安装类似方法可以得到<code>Release, Win32</code>，<code>Debug Win64</code>, <code>Release Win64</code>的库。编译结果分别在<code>vsproject/Debug</code>, <code>vsproject/Release</code>,<code>vsproject/X64/Debug</code>,<code>vsproject/X64/Release</code>下。</p>
+<h1 id="编译protobuf"><a href="#编译protobuf" class="headerlink" title="编译protobuf"></a>编译<code>protobuf</code></h1><p>在<code>third_party/protobuf/cmake</code>，使用cmake生成<code>prptobuf.sln</code>，注意在生成时去掉Test编译选项，否则会提示与<code>gmock</code>有关的错误。然后用vs2015打开，将编译选项设置为<code>Release</code>，编译完成后将Release文件夹拷贝到<code>third_party/protobuf/cmake</code>目录(如果未设置build目录，则应该就在该目录生成Release目录，无需拷贝)。</p>
+<h1 id="编译grpc的C-插件"><a href="#编译grpc的C-插件" class="headerlink" title="编译grpc的C++插件"></a>编译<code>grpc</code>的C++插件</h1><p>打开<code>D:\cpplib\google\grpc\vsprojects</code>下面的<code>grpc_protoc_plugins.sln</code>,将编译选项设为Release,编译<code>grpc_cpp_plugin</code>项目，生成exe文件。</p>
+<h1 id="测试demo"><a href="#测试demo" class="headerlink" title="测试demo"></a>测试demo</h1><p>回到<code>google</code>文件夹，创建<code>study/helloworld</code>目录，建立文件<code>helloworld.proto</code>，内容为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">syntax = &quot;proto3&quot;;</div><div class="line"></div><div class="line">option java_multiple_files = true;</div><div class="line">option java_package = &quot;io.grpc.examples.helloworld&quot;;</div><div class="line">option java_outer_classname = &quot;HelloWorldProto&quot;;</div><div class="line">option objc_class_prefix = &quot;HLW&quot;;</div><div class="line"></div><div class="line">package helloworld;</div><div class="line"></div><div class="line">// The greeting service definition.</div><div class="line">service Greeter &#123;</div><div class="line">  // Sends a greeting</div><div class="line">  rpc SayHello (HelloRequest) returns (HelloReply) &#123;&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// The request message containing the user&apos;s name.</div><div class="line">message HelloRequest &#123;</div><div class="line">  string name = 1;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// The response message containing the greetings</div><div class="line">message HelloReply &#123;</div><div class="line">  string message = 1;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以及<code>helloworld.bat</code>, 内容为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">protoc.exe -I=. --grpc_out=. --plugin=protoc-gen-grpc=...\grpc_cpp_plugin.exe helloworld.proto</div><div class="line">protoc.exe -I=. --cpp_out=. helloworld.proto</div></pre></td></tr></table></figure></p>
+<p>这里的<code>grpc_cpp_plugin.exe</code>为上一步编译生成的插件，设置好相关路径。执行<code>helloworld.bat</code>，会生成下面的文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">greeter_async_client2.cc  greeter_server.cc      helloworld.grpc.pb.h  helloworld.proto</div><div class="line">greeter_async_server.cc   helloworld.bat         helloworld.pb.cc</div><div class="line">greeter_async_client.cc  greeter_client.cc         helloworld.grpc.pb.cc  helloworld.pb.h</div></pre></td></tr></table></figure>
+<p>在当前目录下建立cmake文件CMakeLists.txt ，内容为</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">2.8</span>)</div><div class="line"><span class="keyword">project</span>(grpchelloworld)</div><div class="line"></div><div class="line"><span class="comment">#add_definitions(_WIN32_WINNT=0x600)</span></div><div class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS_RELEASE <span class="string">"$&#123;CMAKE_CXX_FLAGS_RELEASE&#125; /MT"</span>)</div><div class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS_DEBUG <span class="string">"$&#123;CMAKE_CXX_FLAGS_DEBUG&#125; /MTd"</span>)</div><div class="line"><span class="keyword">add_definitions</span>(-D_WIN32_WINNT=<span class="number">0</span>x600)</div><div class="line"><span class="keyword">INCLUDE_DIRECTORIES</span>(</div><div class="line">  D:/cpplib/google/grpc/<span class="keyword">include</span></div><div class="line">  D:/cpplib/google/grpc/third_party/protobuf/src )</div><div class="line"><span class="keyword">link_directories</span>(</div><div class="line">  D:\\cpplib\\google\\grpc\\third_party\\protobuf\\cmake\\build\\Debug <span class="comment">#protobuf</span></div><div class="line">  D:\\cpplib\\google\\grpc\\vsprojects\\Debug <span class="comment">#grpc)</span></div><div class="line"><span class="keyword">aux_source_directory</span>(./ DIR_SRCS)</div><div class="line"></div><div class="line"><span class="comment"># Targets greeter_[async_](client|server)</span></div><div class="line"><span class="keyword">foreach</span>(_target</div><div class="line">  greeter_client greeter_server</div><div class="line">  greeter_async_client greeter_async_server</div><div class="line">greeter_async_client2)</div><div class="line">  <span class="keyword">add_executable</span>(<span class="variable">$&#123;_target&#125;</span> <span class="string">"$&#123;_target&#125;.cc"</span>  helloworld.pb.cc helloworld.grpc.pb.cc)</div><div class="line">  <span class="keyword">target_link_libraries</span>(<span class="variable">$&#123;_target&#125;</span></div><div class="line">    libprotobufd</div><div class="line">    grpc_unsecure</div><div class="line">    gpr</div><div class="line">    grpc++_unsecure</div><div class="line">    Ws2_32</div><div class="line">    z</div><div class="line">    )</div><div class="line"><span class="keyword">endforeach</span>()</div></pre></td></tr></table></figure>
+<p>生成vs项目，编译Debug项目成功, 生成<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">greeter_async_client.exe*   greeter_async_client2.ilk  greeter_async_server.pdb  greeter_server.exe*</div><div class="line">greeter_async_client.ilk    greeter_async_client2.pdb  greeter_client.exe*       greeter_server.ilk</div><div class="line">greeter_async_client.pdb    greeter_async_server.exe*  greeter_client.ilk        greeter_server.pdb</div><div class="line">greeter_async_client2.exe*  greeter_async_server.ilk   greeter_client.pdb</div></pre></td></tr></table></figure></p>
+<p>运行一个服务端，再运行一个客户端，测试成功。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/grpc/" rel="tag">#grpc</a>
+          
+            <a href="/tags/cpp/" rel="tag">#cpp</a>
+          
+        </div>
+      
+
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://lambdacalculator.com/images/biglam.png"
+               alt="Mosehandan" />
+          <p class="site-author-name" itemprop="name">Mosehandan</p>
+          <p class="site-description motion-element" itemprop="description">自信则沉默，喧闹即不安。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">1</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用工具"><span class="nav-text">使用工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译grpc库"><span class="nav-text">编译grpc库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译protobuf"><span class="nav-text">编译protobuf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译grpc的C-插件"><span class="nav-text">编译grpc的C++插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试demo"><span class="nav-text">测试demo</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mosehandan</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+  <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+
+  
+
+</body>
+</html>
